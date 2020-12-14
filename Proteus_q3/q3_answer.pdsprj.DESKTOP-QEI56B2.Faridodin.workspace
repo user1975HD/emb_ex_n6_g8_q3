@@ -4,6 +4,7 @@
   <PLACEMENT>2c00000002000000030000000083ffff0083ffffffffffffffffffff5900000073000000c0050000dd030000</PLACEMENT>
   <WINDOW type="default" module="ISIS"/>
   <WINDOW type="device" module="LIBMAN"/>
+  <WINDOW type="default" module="DXP"/>
  </FRAME>
  <MODULE name="VSMDEBUG">
   <PWI>
@@ -96,7 +97,7 @@
      <ITEM name="TopLineAddress">00000020</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="450" x="1198" flags="00008023" y="317" h="250" pid="0" iid="2">
+   <POPUP w="450" x="537" flags="00008023" y="467" h="250" pid="0" iid="2">
     <PROPERTIES>
      <ITEM name="AutoEcho">0</ITEM>
      <ITEM name="HexMode">0</ITEM>

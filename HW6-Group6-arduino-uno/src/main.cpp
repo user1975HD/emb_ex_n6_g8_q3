@@ -8,9 +8,33 @@
 
 TaskHandle_t taskBlinkHandle;
 TaskHandle_t taskReadAnalog1;
+TaskHandle_t taskReadDist;
 
-const int blikerpinFaridy = 11;
 int analogPinPotens1 = A1;
+int analogPinPotens2 = A2;
+
+const int trigPin = 10;
+const int echoPin = 11;
+
+int getDistance()
+{
+  int duration;
+  int distance;
+
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+
+  Serial.println("duration:");
+  Serial.println(duration);
+
+  distance = duration * 0.034 / 2;
+}
 
 void TaskBlink(void *pvParameters)
 {
@@ -41,6 +65,33 @@ void TaskReadAnalog1(void *pvParameters)
   }
 }
 
+void TaskReadDist(void *pvParameters)
+{
+  (void)pvParameters;
+
+  int distanceRead;
+
+  int simu_distanceRead;
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  int poten_2val;
+
+  for (;;)
+  {
+    // motorVal = 10;
+    // analogWrite(motorPin, motorVal);
+
+    distanceRead = getDistance();
+    Serial.println("distanceRead:");
+    Serial.println(distanceRead);
+
+    poten_2val = analogRead(analogPinPotens2); // read the input pin
+    Serial.println(poten_2val);
+  }
+}
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -57,6 +108,13 @@ void setup()
               128,             // Stack size
               NULL,
               1,                 // Priority
+              &taskBlinkHandle); // Task handler
+
+  xTaskCreate(TaskReadDist, // Task function
+              "ReadDist",   // Task name
+              128,          // Stack size
+              NULL,
+              3,                 // Priority
               &taskBlinkHandle); // Task handler
 
   Serial.begin(9600);
