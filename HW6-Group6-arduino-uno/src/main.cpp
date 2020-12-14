@@ -1,103 +1,75 @@
-// #include <Arduino.h>
+#include <Arduino.h>
 
-// const int blinker = 13;
-
-// void setup()
-// {
-//   // put your setup code here, to run once:
-
-//   Serial.begin(9600);
-//   digitalWrite(10, HIGH);
-// }
-
-// void loop()
-// {
-//   // put your main code here, to run repeatedly:
-//   digitalWrite(blinker, LOW);
-//   delay(10000);
-//   digitalWrite(blinker, HIGH);
-//   delay(10000);
-//   Serial.println("distance :");
-// }
-
+// Include Arduino FreeRTOS library
 #include <Arduino_FreeRTOS.h>
 
-// define two tasks for Blink & AnalogRead
-void TaskBlink(void *pvParameters);
-void TaskAnalogRead(void *pvParameters);
+// Include queue support
+#include <queue.h>
 
-// the setup function runs once when you press reset or power the board
+TaskHandle_t taskBlinkHandle;
+TaskHandle_t taskReadAnalog1;
+
+const int blikerpinFaridy = 11;
+int analogPinPotens1 = A1;
+
+void TaskBlink(void *pvParameters)
+{
+  (void)pvParameters;
+
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  for (;;)
+  {
+    digitalWrite(LED_BUILTIN, HIGH);
+    vTaskDelay(250 / portTICK_PERIOD_MS);
+    digitalWrite(LED_BUILTIN, LOW);
+    vTaskDelay(250 / portTICK_PERIOD_MS);
+  }
+}
+
+void TaskReadAnalog1(void *pvParameters)
+{
+  (void)pvParameters;
+
+  int poten_1val;
+  // pinMode(LED_BUILTIN, OUTPUT);
+
+  for (;;)
+  {
+    poten_1val = analogRead(analogPinPotens1); // read the input pin
+    Serial.println(poten_1val);
+  }
+}
+
 void setup()
 {
+  // put your setup code here, to run once:
 
-  // Now set up two tasks to run independently.
-  xTaskCreate(
-      TaskBlink, (const portCHAR *)"Blink" // A name just for humans
-      ,
-      128 // Stack size
-      ,
-      NULL, 2 // priority
-      ,
-      NULL);
+  xTaskCreate(TaskBlink, // Task function
+              "Blink",   // Task name
+              128,       // Stack size
+              NULL,
+              0,                 // Priority
+              &taskBlinkHandle); // Task handler
 
-  xTaskCreate(
-      TaskAnalogRead, (const portCHAR *)"AnalogRead", 128 // This stack size can be checked & adjusted by reading Highwater
-      ,
-      NULL, 1 // priority
-      ,
-      NULL);
+  xTaskCreate(TaskReadAnalog1, // Task function
+              "ReadAnalog1",   // Task name
+              128,             // Stack size
+              NULL,
+              1,                 // Priority
+              &taskBlinkHandle); // Task handler
 
-  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
+  Serial.begin(9600);
+  digitalWrite(10, HIGH);
 }
 
 void loop()
 {
-  // Empty. Things are done in Tasks.
+  // Serial.println("alo1 :");
+  // // put your main code here, to run repeatedly:
+  // digitalWrite(blikerpinFaridy, LOW);
+  // delay(1000);
+  // digitalWrite(blikerpinFaridy, HIGH);
+  // delay(1000);
+  // Serial.println("alo :");
 }
-
-/*--------------------------------------------------*/
-/*---------------------- Tasks ---------------------*/
-/*--------------------------------------------------*/
-
-void TaskBlink(void *pvParameters) // This is a task.
-{
-  (void)pvParameters;
-
-  // initialize digital pin 13 as an output.
-  pinMode(13, OUTPUT);
-
-  for (;;) // A Task shall never return or exit.
-  {
-    digitalWrite(13, HIGH);                // turn the LED on (HIGH is the voltage level)
-    vTaskDelay(1000 / portTICK_PERIOD_MS); // wait for one second
-    digitalWrite(13, LOW);                 // turn the LED off by making the voltage LOW
-    vTaskDelay(1000 / portTICK_PERIOD_MS); // wait for one second
-  }
-}
-
-void TaskAnalogRead(void *pvParameters) // This is a task.
-{
-  (void)pvParameters;
-
-  // initialize serial communication at 9600 bits per second:
-  Serial.begin(9600);
-
-  for (;;)
-  {
-    // read the input on analog pin 0:
-    int sensorValue = analogRead(A0);
-    // print out the value you read:
-    Serial.println(sensorValue);
-    vTaskDelay(1); // one tick delay (15ms) in between reads for stability
-  }
-}
-
-// #include <Arduino.h>
-
-// void setup() {
-//   // put your setup code here, to run once:
-// }
-
-// void loop() {
-//   // put your main code here, to run repeatedly:
-// }
